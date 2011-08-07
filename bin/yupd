@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+# -*- ruby -*-
+
+require 'getoptlong'
+
+$:.unshift(File.expand_path('../lib', File.dirname(__FILE__)))
+require 'yup'
+
+def usage
+  puts <<-EOF
+Usage: #{$0} [OPTION] ... FORWARD_TO_HOST
+
+Options:
+  -h, --help                 Show help
+  --listen <host:port>, -l   Listen on an address (default localhost:8080)
+  --status-code <code>       Send status code to a client on request (default 200)
+  --resend-delay <seconds>   Resend failed requests in seconds (default 5.0)
+
+Examples:
+  yupd --listen 0.0.0.0:8081 --status-code 201 errbit.host.somewhere
+
+EOF
+end
+
+opts = GetoptLong.new(
+                  ['--help',         '-h', GetoptLong::NO_ARGUMENT],
+                  ['--listen',       '-l', GetoptLong::REQUIRED_ARGUMENT],
+                  ['--status-code',        GetoptLong::REQUIRED_ARGUMENT],
+                  ['--resend-delay', '-d', GetoptLong::REQUIRED_ARGUMENT],
+                  )
+config = {}
+opts.each do |opt, arg|
+  case opt
+  when '--help', '-h'
+    usage
+    exit 0
+  when '--listen', '-l'
+    config[:listen_host], config[:listen_port] = arg.split(':')
+  when '--resend-delay', '-d'
+    config[:resend_delay] = arg.to_f
+  when '--status-code'
+    config[:status_code] = arg.to_i
+  end
+end
+
+if ARGV.length != 1
+  puts "Missing host argument (try --help)"
+  usage
+  exit 1
+end
+
+config[:forward_to] = ARGV.shift
+
+Yup.resend_delay = config[:resend_delay] if config.has_key?(:resend_delay)
+Yup.run(config)
