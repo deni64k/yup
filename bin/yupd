@@ -15,6 +15,7 @@ Options:
   --listen <host:port>, -l   Listen on an address (default localhost:8080)
   --status-code <code>       Send status code to a client on request (default 200)
   --resend-delay <seconds>   Resend failed requests in seconds (default 5.0)
+  --watermark <number>       Maximum of concurrent requests (default 100)
 
 Examples:
   yupd --listen 0.0.0.0:8081 --status-code 201 errbit.host.somewhere
@@ -22,12 +23,12 @@ Examples:
 EOF
 end
 
-opts = GetoptLong.new(
-                  ['--help',         '-h', GetoptLong::NO_ARGUMENT],
-                  ['--listen',       '-l', GetoptLong::REQUIRED_ARGUMENT],
-                  ['--status-code',        GetoptLong::REQUIRED_ARGUMENT],
-                  ['--resend-delay', '-d', GetoptLong::REQUIRED_ARGUMENT],
-                  )
+opts = GetoptLong.new(*[['--help',         '-h', GetoptLong::NO_ARGUMENT],
+                        ['--listen',       '-l', GetoptLong::REQUIRED_ARGUMENT],
+                        ['--status-code',        GetoptLong::REQUIRED_ARGUMENT],
+                        ['--resend-delay', '-d', GetoptLong::REQUIRED_ARGUMENT],
+                        ['--watermark',          GetoptLong::REQUIRED_ARGUMENT],
+                        ])
 config = {}
 opts.each do |opt, arg|
   case opt
@@ -40,6 +41,8 @@ opts.each do |opt, arg|
     config[:resend_delay] = arg.to_f
   when '--status-code'
     config[:status_code] = arg.to_i
+  when '--watermark'
+    config[:watermark] = arg.to_i
   end
 end
 
@@ -51,5 +54,6 @@ end
 
 config[:forward_to] = ARGV.shift
 
+Yup.watermark    = config[:watermark] if config.has_key?(:watermark)
 Yup.resend_delay = config[:resend_delay] if config.has_key?(:resend_delay)
 Yup.run(config)

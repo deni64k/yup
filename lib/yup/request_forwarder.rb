@@ -18,6 +18,8 @@ module Yup
              :body => @body)
 
       http.callback do
+        Yup.watermark += 1
+
         if http.response_header.status / 100 == 2
           puts '--- SUCCESS'
         else

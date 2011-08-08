@@ -6,12 +6,12 @@ require 'yup/request_handler'
 
 module Yup
   @@resend_delay = 5.0
-  def self.resend_delay
-    @@resend_delay
-  end
-  def self.resend_delay=(seconds)
-    @@resend_delay = seconds
-  end
+  def self.resend_delay; @@resend_delay end
+  def self.resend_delay=(seconds); @@resend_delay = seconds end
+
+  @@watermark = 100
+  def self.watermark; @@watermark end
+  def self.watermark=(seconds); @@watermark = seconds end
 
   def self.run(config)
     host = config[:listen_host] || 'localhost'

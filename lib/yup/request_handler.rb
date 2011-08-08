@@ -39,8 +39,14 @@ module Yup
       resp['Server'] = 'yupd'
       send_data resp.to_s
 
-      EventMachine.next_tick do
-        RequestForwarder.new(@parser, @body, @forward_to).run
+      unless Yup.watermark.zero?
+        Yup.watermark -= 1
+
+        EventMachine.next_tick do
+          RequestForwarder.new(@parser, @body, @forward_to).run
+        end
+      else
+        puts "-- watermark is reached, drop"
       end
     end
   end
