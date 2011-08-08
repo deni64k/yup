@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{yup}
-  s.version = "0.0.0"
+  s.version = "0.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Denis Sukhonin"]
@@ -31,7 +31,8 @@ Gem::Specification.new do |s|
     "lib/yup/request_forwarder.rb",
     "lib/yup/request_handler.rb",
     "test/helper.rb",
-    "test/test_yup.rb"
+    "test/test_yup.rb",
+    "yup.gemspec"
   ]
   s.homepage = %q{http://github.com/neglectedvalue/yup}
   s.licenses = ["MIT"]
