@@ -21,7 +21,6 @@ Now problem of availability of errbit is assigned to the yupd.
 == Roadmap to 0.1
 
 * Daemonize
-* Logger
 * Preforking
 * Persistent HTTP requests queue
 * A configurable map of different delegating rules
