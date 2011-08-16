@@ -21,18 +21,18 @@ module Yup
         Yup.watermark += 1
 
         if http.response_header.status / 100 == 2
-          puts '--- SUCCESS'
+          logger.info '--- SUCCESS'
         else
-          puts '--- FAIL'
-          # puts http.response_header.inspect
-          # puts http.response
-          p http
+          logger.info '--- FAIL'
+          # logger.debug http.response_header.inspect
+          # logger.debug http.response
+          logger.debug http
         end
       end
 
       http.errback do
-        puts '--- ERROR'
-        p http
+        logger.info '--- ERROR'
+        logger.debug http
 
         EventMachine.add_timer(Yup.resend_delay) { self.run }
       end

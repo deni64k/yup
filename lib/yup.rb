@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'eventmachine'
+require 'logger'
 
 require 'yup/request_forwarder'
 require 'yup/request_handler'
@@ -19,10 +20,13 @@ module Yup
     status_code = config[:status_code] || 200
     forward_to  = config[:forward_to]
 
+    logger = Logger.new(STDOUT)
+    logger.level = config[:loglevel]
+
     EventMachine::run do
       EventMachine::start_server(host, port, RequestHandler,
                                  forward_to, status_code)
-      puts "listening on #{host}:#{port}"
+      logger.info "listening on #{host}:#{port}"
     end
   end
 end

@@ -16,6 +16,7 @@ Options:
   --status-code <code>       Send status code to a client on request (default 200)
   --resend-delay <seconds>   Resend failed requests in seconds (default 5.0)
   --watermark <number>       Maximum of concurrent requests (default 100)
+  --loglevel <level>         Logging severity (default info). Available log levels: debug, warn, info. 
 
 Examples:
   yupd --listen 0.0.0.0:8081 --status-code 201 errbit.host.somewhere
@@ -28,8 +29,14 @@ opts = GetoptLong.new(*[['--help',         '-h', GetoptLong::NO_ARGUMENT],
                         ['--status-code',        GetoptLong::REQUIRED_ARGUMENT],
                         ['--resend-delay', '-d', GetoptLong::REQUIRED_ARGUMENT],
                         ['--watermark',          GetoptLong::REQUIRED_ARGUMENT],
+                        ['--loglevel',           GetoptLong::REQUIRED_ARGUMENT],
                         ])
 config = {}
+levels = {
+  "info"  => Logger::INFO,
+  "warn"  => Logger::WARN,
+  "debug" => Logger::DEBUG
+}
 opts.each do |opt, arg|
   case opt
   when '--help', '-h'
@@ -43,6 +50,14 @@ opts.each do |opt, arg|
     config[:status_code] = arg.to_i
   when '--watermark'
     config[:watermark] = arg.to_i
+  when '--loglevel'
+    if levels.key? arg.to_s
+      config[:loglevel] = levels[arg.to_s]
+    else
+      puts "ERROR: Wrong log level"
+      usage
+      exit 0
+    end
   end
 end
 
