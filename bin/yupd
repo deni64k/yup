@@ -16,13 +16,22 @@ Options:
   --status-code <code>       Send status code to a client on request (default 200)
   --resend-delay <seconds>   Resend failed requests in seconds (default 5.0)
   --watermark <number>       Maximum of concurrent requests (default 100)
-  --loglevel <level>         Logging severity (default info). Available log levels: debug, warn, info. 
+  --loglevel <level>         Logging severity (default fatal).
+                             Available log levels: fatal, error, warn, info, debug.
 
 Examples:
   yupd --listen 0.0.0.0:8081 --status-code 201 errbit.host.somewhere
 
 EOF
 end
+
+LEVELS = {
+  "fatal" => Logger::FATAL,
+  "error" => Logger::ERROR,
+  "warn"  => Logger::WARN,
+  "info"  => Logger::INFO,
+  "debug" => Logger::DEBUG
+}.freeze
 
 opts = GetoptLong.new(*[['--help',         '-h', GetoptLong::NO_ARGUMENT],
                         ['--listen',       '-l', GetoptLong::REQUIRED_ARGUMENT],
@@ -31,12 +40,8 @@ opts = GetoptLong.new(*[['--help',         '-h', GetoptLong::NO_ARGUMENT],
                         ['--watermark',          GetoptLong::REQUIRED_ARGUMENT],
                         ['--loglevel',           GetoptLong::REQUIRED_ARGUMENT],
                         ])
-config = {}
-levels = {
-  "info"  => Logger::INFO,
-  "warn"  => Logger::WARN,
-  "debug" => Logger::DEBUG
-}
+config = {:loglevel => LEVELS["fatal"]}
+
 opts.each do |opt, arg|
   case opt
   when '--help', '-h'
@@ -51,12 +56,12 @@ opts.each do |opt, arg|
   when '--watermark'
     config[:watermark] = arg.to_i
   when '--loglevel'
-    if levels.key? arg.to_s
-      config[:loglevel] = levels[arg.to_s]
+    if LEVELS.has_key?(arg)
+      config[:loglevel] = LEVELS[arg]
     else
       puts "ERROR: Wrong log level"
       usage
-      exit 0
+      exit 1
     end
   end
 end
@@ -69,6 +74,7 @@ end
 
 config[:forward_to] = ARGV.shift
 
+Yup.logger.level = config[:loglevel]
 Yup.watermark    = config[:watermark] if config.has_key?(:watermark)
 Yup.resend_delay = config[:resend_delay] if config.has_key?(:resend_delay)
 Yup.run(config)
