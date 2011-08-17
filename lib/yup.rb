@@ -14,19 +14,20 @@ module Yup
   def self.watermark; @@watermark end
   def self.watermark=(seconds); @@watermark = seconds end
 
+  @@logger = Logger.new(STDOUT)
+  def self.logger; @@logger end
+  def self.logger=(logger); @@logger = logger end
+
   def self.run(config)
     host = config[:listen_host] || 'localhost'
     port = config[:listen_port] || 8080
     status_code = config[:status_code] || 200
     forward_to  = config[:forward_to]
 
-    logger = Logger.new(STDOUT)
-    logger.level = config[:loglevel]
-
     EventMachine::run do
       EventMachine::start_server(host, port, RequestHandler,
-                                 forward_to, status_code, logger)
-      logger.info "listening on #{host}:#{port}"
+                                 forward_to, status_code)
+      logger.info { "listening on #{host}:#{port}" }
     end
   end
 end

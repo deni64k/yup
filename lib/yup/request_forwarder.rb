@@ -2,11 +2,12 @@ require 'em-http-request'
 
 module Yup
   class RequestForwarder
-    def initialize(parser, body, forward_to, logger)
+    def initialize(parser, body, forward_to)
       @parser     = parser
       @body       = body
       @forward_to = forward_to
-      @logger = logger
+
+      @logger = Yup.logger
     end
 
     def run
@@ -25,15 +26,15 @@ module Yup
           @logger.info '--- SUCCESS'
         else
           @logger.info '--- FAIL'
-          # logger.debug http.response_header.inspect
-          # logger.debug http.response
-          @logger.debug http
+          @logger.debug { http.inspect }
+          @logger.debug { http.response_header.inspect }
+          @logger.debug { http.response.inspect }
         end
       end
 
       http.errback do
         @logger.info '--- ERROR'
-        @logger.debug http
+        @logger.debug { http.inspect }
 
         EventMachine.add_timer(Yup.resend_delay) { self.run }
       end
