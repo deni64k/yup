@@ -37,6 +37,8 @@ levels = {
   "warn"  => Logger::WARN,
   "debug" => Logger::DEBUG
 }
+config[:loglevel] = levels["info"] # set default loglevel
+
 opts.each do |opt, arg|
   case opt
   when '--help', '-h'

@@ -25,7 +25,7 @@ module Yup
 
     EventMachine::run do
       EventMachine::start_server(host, port, RequestHandler,
-                                 forward_to, status_code)
+                                 forward_to, status_code, logger)
       logger.info "listening on #{host}:#{port}"
     end
   end

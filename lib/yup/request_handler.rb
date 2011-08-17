@@ -5,9 +5,10 @@ module Yup
   class RequestHandler < EM::Connection
     attr_reader :queue
 
-    def initialize(forward_to, status_code)
+    def initialize(forward_to, status_code, logger)
       @forward_to  = forward_to
       @status_code = status_code
+      @logger = logger
       @chunks     = []
     end
 
@@ -28,11 +29,11 @@ module Yup
     end
 
     def on_message_complete
-      logger.info  "-- got request"
-      logger.info  "HTTP version: "      + @parser.http_version
-      logger.info  "HTTP method : "      + @parser.http_method # for requests
-      logger.info  "HTTP request_url : " + @parser.request_url
-      logger.debug "HTTP headers : "     + @parser.headers
+      @logger.info  "-- got request"
+      @logger.info  "HTTP version :"      + @parser.http_version.join('.')
+      @logger.info  "HTTP method : "      + @parser.http_method # for requests
+      @logger.info  "HTTP request_url : " + @parser.request_url
+      @logger.debug "HTTP headers : "     + @parser.headers.inspect
 
       resp = WEBrick::HTTPResponse.new(:HTTPVersion => '1.1')
       resp.status = @status_code
@@ -43,10 +44,10 @@ module Yup
         Yup.watermark -= 1
 
         EventMachine.next_tick do
-          RequestForwarder.new(@parser, @body, @forward_to).run
+          RequestForwarder.new(@parser, @body, @forward_to, @logger).run
         end
       else
-        logger.error "-- watermark is reached, drop"
+        @logger.error "-- watermark is reached, drop"
       end
     end
   end

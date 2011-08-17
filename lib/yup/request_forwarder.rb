@@ -2,10 +2,11 @@ require 'em-http-request'
 
 module Yup
   class RequestForwarder
-    def initialize(parser, body, forward_to)
+    def initialize(parser, body, forward_to, logger)
       @parser     = parser
       @body       = body
       @forward_to = forward_to
+      @logger = logger
     end
 
     def run
@@ -21,18 +22,18 @@ module Yup
         Yup.watermark += 1
 
         if http.response_header.status / 100 == 2
-          logger.info '--- SUCCESS'
+          @logger.info '--- SUCCESS'
         else
-          logger.info '--- FAIL'
+          @logger.info '--- FAIL'
           # logger.debug http.response_header.inspect
           # logger.debug http.response
-          logger.debug http
+          @logger.debug http
         end
       end
 
       http.errback do
-        logger.info '--- ERROR'
-        logger.debug http
+        @logger.info '--- ERROR'
+        @logger.debug http
 
         EventMachine.add_timer(Yup.resend_delay) { self.run }
       end
