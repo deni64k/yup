@@ -31,10 +31,10 @@ module Yup
 
     def on_message_complete
       @logger.info  "-- got request"
-      @logger.info  { "HTTP version : "     + @parser.http_version.join('.') }
-      @logger.info  { "HTTP method : "      + @parser.http_method }
+      @logger.info  { "HTTP version     : " + @parser.http_version.join('.') }
+      @logger.info  { "HTTP method      : " + @parser.http_method }
       @logger.info  { "HTTP request_url : " + @parser.request_url }
-      @logger.debug { "HTTP headers : "     + @parser.headers.inspect }
+      @logger.debug { "HTTP headers     : " + @parser.headers.inspect }
 
       resp = WEBrick::HTTPResponse.new(:HTTPVersion => '1.1')
       resp.status = @status_code
