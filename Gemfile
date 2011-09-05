@@ -2,7 +2,11 @@ source "http://rubygems.org"
 
 gem "eventmachine"
 gem "em-http-request"
+gem "http_request.rb"
 gem "http_parser.rb"
+gem "tuple"
+gem "dk-bdb"
+gem "yajl-ruby"
 
 group :development do
   gem "yard", "~> 0.6.0"

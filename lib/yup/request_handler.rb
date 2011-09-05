@@ -5,9 +5,10 @@ module Yup
   class RequestHandler < EM::Connection
     attr_reader :queue
 
-    def initialize(forward_to, status_code)
+    def initialize(forward_to, status_code, state)
       @forward_to  = forward_to
       @status_code = status_code
+      @state       = state
 
       @logger = Yup.logger
       @chunks = []
@@ -36,19 +37,31 @@ module Yup
       @logger.info  { "HTTP request_url : " + @parser.request_url }
       @logger.debug { "HTTP headers     : " + @parser.headers.inspect }
 
+      send_answer
+      shedule_request
+    end
+
+    private
+    def send_answer
       resp = WEBrick::HTTPResponse.new(:HTTPVersion => '1.1')
       resp.status = @status_code
       resp['Server'] = 'yupd'
       send_data resp.to_s
+    end
 
-      unless Yup.watermark.zero?
-        Yup.watermark -= 1
-
-        EventMachine.next_tick do
-          RequestForwarder.new(@parser, @body, @forward_to).run
-        end
+    def shedule_request
+      if @state
+        @state.push(Yajl::Encoder.encode([@parser.http_method.downcase, @parser.request_url, @parser.headers, @body, @forward_to]))
       else
-        @logger.error "-- watermark is reached, drop"
+        unless Yup.watermark.zero?
+          Yup.watermark -= 1
+
+          EventMachine.next_tick do
+            RequestForwarder.new(@parser, @body, @forward_to).run
+          end
+        else
+          @logger.error "-- watermark is reached, drop"
+        end
       end
     end
   end

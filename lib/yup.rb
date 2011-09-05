@@ -1,9 +1,12 @@
 require 'rubygems'
 require 'eventmachine'
 require 'logger'
+require 'yajl'
+require 'tmpdir'
 
 require 'yup/request_forwarder'
 require 'yup/request_handler'
+require 'yup/state'
 
 module Yup
   @@resend_delay = 5.0
@@ -24,10 +27,42 @@ module Yup
     status_code = config[:status_code] || 200
     forward_to  = config[:forward_to]
 
-    EventMachine::run do
-      EventMachine::start_server(host, port, RequestHandler,
-                                 forward_to, status_code)
+    EventMachine.run do
+      EventMachine.start_server(host, port, RequestHandler, forward_to, status_code, nil)
       logger.info { "listening on #{host}:#{port}" }
+    end
+  end
+
+  def self.run_with_state(config)
+    host = config[:listen_host] || 'localhost'
+    port = config[:listen_port] || 8080
+    status_code = config[:status_code] || 200
+    forward_to  = config[:forward_to]
+    dbpath = config[:persistent]
+    feedback_channel = File.join(Dir.tmpdir, "yupd-#{$$}-feedback")
+    state            = Yup::State.new(dbpath, forward_to, feedback_channel)
+
+    pid = Process.fork do
+      State::RequestForwarder.new(state, forward_to).run_loop
+    end
+
+    if pid
+      db_closer = proc do
+        Yup.logger.info { "Terminating consumer #{$$}" }
+        Process.kill("KILL", pid)
+        state.close
+        exit 0
+      end
+      Signal.trap("TERM", &db_closer)
+      Signal.trap("INT", &db_closer)
+    end
+
+    EventMachine.run do
+      EventMachine.start_server(host, port, RequestHandler, forward_to, status_code, state)
+      logger.info { "Listening on #{host}:#{port}" }
+
+      EventMachine.start_unix_domain_server(feedback_channel, State::FeedbackHandler, state)
+      logger.info { "Feedback through #{feedback_channel}" }
     end
   end
 end
