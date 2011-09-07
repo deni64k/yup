@@ -38,6 +38,8 @@ module Yup
       http.errback do
         @logger.info '--- ERROR'
         @logger.debug { http.inspect }
+        @logger.debug { http.response_header.inspect }
+        @logger.debug { http.response.inspect }
 
         EventMachine.add_timer(Yup.resend_delay) { self.run }
       end

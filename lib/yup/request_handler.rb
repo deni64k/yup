@@ -36,6 +36,7 @@ module Yup
       @logger.info  { "HTTP method      : " + @parser.http_method }
       @logger.info  { "HTTP request_url : " + @parser.request_url }
       @logger.debug { "HTTP headers     : " + @parser.headers.inspect }
+      @logger.debug { "HTTP body        : " + @body }
 
       send_answer
       shedule_request
@@ -57,7 +58,7 @@ module Yup
           Yup.watermark -= 1
 
           EventMachine.next_tick do
-            RequestForwarder.new(@parser, @body, @forward_to).run
+            RequestForwarder.new(@parser.http_method.downcase, @parser.request_url, @parser.headers, @body, @forward_to).run
           end
         else
           @logger.error "-- watermark is reached, drop"
