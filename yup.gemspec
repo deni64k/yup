@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Denis Sukhonin"]
-  s.date = %q{2011-08-17}
+  s.date = %q{2011-09-07}
   s.default_executable = %q{yupd}
   s.description = %q{Just answers 200 (or specified) to a client and asynchronously forwards HTTP request to a configured host}
   s.email = %q{d.sukhonin@gmail.com}
@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
     "lib/yup.rb",
     "lib/yup/request_forwarder.rb",
     "lib/yup/request_handler.rb",
+    "lib/yup/state.rb",
     "test/helper.rb",
     "test/test_yup.rb",
     "yup.gemspec"
@@ -51,18 +52,26 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<eventmachine>, [">= 0"])
       s.add_runtime_dependency(%q<em-http-request>, [">= 0"])
+      s.add_runtime_dependency(%q<http_request.rb>, [">= 0"])
       s.add_runtime_dependency(%q<http_parser.rb>, [">= 0"])
-      s.add_development_dependency(%q<shoulda>, [">= 0"])
+      s.add_runtime_dependency(%q<tuple>, [">= 0"])
+      s.add_runtime_dependency(%q<dk-bdb>, [">= 0"])
+      s.add_runtime_dependency(%q<yajl-ruby>, [">= 0"])
       s.add_development_dependency(%q<yard>, ["~> 0.6.0"])
+      s.add_development_dependency(%q<minitest>, [">= 0"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
     else
       s.add_dependency(%q<eventmachine>, [">= 0"])
       s.add_dependency(%q<em-http-request>, [">= 0"])
+      s.add_dependency(%q<http_request.rb>, [">= 0"])
       s.add_dependency(%q<http_parser.rb>, [">= 0"])
-      s.add_dependency(%q<shoulda>, [">= 0"])
+      s.add_dependency(%q<tuple>, [">= 0"])
+      s.add_dependency(%q<dk-bdb>, [">= 0"])
+      s.add_dependency(%q<yajl-ruby>, [">= 0"])
       s.add_dependency(%q<yard>, ["~> 0.6.0"])
+      s.add_dependency(%q<minitest>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_dependency(%q<rcov>, [">= 0"])
@@ -70,9 +79,13 @@ Gem::Specification.new do |s|
   else
     s.add_dependency(%q<eventmachine>, [">= 0"])
     s.add_dependency(%q<em-http-request>, [">= 0"])
+    s.add_dependency(%q<http_request.rb>, [">= 0"])
     s.add_dependency(%q<http_parser.rb>, [">= 0"])
-    s.add_dependency(%q<shoulda>, [">= 0"])
+    s.add_dependency(%q<tuple>, [">= 0"])
+    s.add_dependency(%q<dk-bdb>, [">= 0"])
+    s.add_dependency(%q<yajl-ruby>, [">= 0"])
     s.add_dependency(%q<yard>, ["~> 0.6.0"])
+    s.add_dependency(%q<minitest>, [">= 0"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
     s.add_dependency(%q<rcov>, [">= 0"])
