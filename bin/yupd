@@ -18,6 +18,7 @@ Options:
   --watermark <number>       Maximum of concurrent requests (default 100)
   --loglevel <level>         Logging severity (default fatal).
                              Available log levels: fatal, error, warn, info, debug.
+  --persistent <path>        Use persistent queue.
 
 Examples:
   yupd --listen 0.0.0.0:8081 --status-code 201 errbit.host.somewhere
