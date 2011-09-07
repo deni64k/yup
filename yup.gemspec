@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{yup}
-  s.version = "0.0.4"
+  s.version = "0.0.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Denis Sukhonin"]
@@ -55,7 +55,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<http_request.rb>, [">= 0"])
       s.add_runtime_dependency(%q<http_parser.rb>, [">= 0"])
       s.add_runtime_dependency(%q<tuple>, [">= 0"])
-      s.add_runtime_dependency(%q<dk-bdb>, [">= 0"])
+      s.add_runtime_dependency(%q<bdb>, [">= 0"])
       s.add_runtime_dependency(%q<yajl-ruby>, [">= 0"])
       s.add_development_dependency(%q<yard>, ["~> 0.6.0"])
       s.add_development_dependency(%q<minitest>, [">= 0"])
@@ -68,7 +68,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<http_request.rb>, [">= 0"])
       s.add_dependency(%q<http_parser.rb>, [">= 0"])
       s.add_dependency(%q<tuple>, [">= 0"])
-      s.add_dependency(%q<dk-bdb>, [">= 0"])
+      s.add_dependency(%q<bdb>, [">= 0"])
       s.add_dependency(%q<yajl-ruby>, [">= 0"])
       s.add_dependency(%q<yard>, ["~> 0.6.0"])
       s.add_dependency(%q<minitest>, [">= 0"])
@@ -82,7 +82,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<http_request.rb>, [">= 0"])
     s.add_dependency(%q<http_parser.rb>, [">= 0"])
     s.add_dependency(%q<tuple>, [">= 0"])
-    s.add_dependency(%q<dk-bdb>, [">= 0"])
+    s.add_dependency(%q<bdb>, [">= 0"])
     s.add_dependency(%q<yajl-ruby>, [">= 0"])
     s.add_dependency(%q<yard>, ["~> 0.6.0"])
     s.add_dependency(%q<minitest>, [">= 0"])
