@@ -3,12 +3,13 @@ require 'http_request'
 
 module Yup
   class RequestForwarder
-    def initialize(http_method, request_url, headers, body, forward_to)
+    def initialize(http_method, request_url, headers, body, forward_to, timeout)
       @http_method = http_method
       @request_url = request_url
       @headers     = headers
       @body        = body
       @forward_to  = forward_to
+      @timeout     = timeout
 
       @logger = Yup.logger
     end
@@ -19,6 +20,7 @@ module Yup
       http = EventMachine::HttpRequest.
         new(http_url).
         send(http_method,
+             :inactivity_timeout => @timeout,
              :head => @headers.merge('Host' => @forward_to),
              :body => @body)
 
@@ -48,9 +50,10 @@ module Yup
 
   class State
     class RequestForwarder
-      def initialize(state, forward_to)
+      def initialize(state, forward_to, timeout)
         @state      = state
         @forward_to = forward_to
+        @timeout = timeout
 
         @logger = Yup.logger
         @yajl   = Yajl::Parser.new(:symbolize_keys => true)
@@ -79,7 +82,8 @@ module Yup
             send(http_method,
                  :url => http_url,
                  :headers => headers.merge('Host' => @forward_to),
-                 :parameters => body)
+                 :parameters => body,
+                 :inactivity_timeout => timeout)
 
           if http.code_2xx?
             @logger.info '--- SUCCESS'

@@ -26,24 +26,26 @@ module Yup
     port = config[:listen_port] || 8080
     status_code = config[:status_code] || 200
     forward_to  = config[:forward_to]
+    timeout     = config[:timeout] || 10
 
     EventMachine.run do
-      EventMachine.start_server(host, port, RequestHandler, forward_to, status_code, nil)
+      EventMachine.start_server(host, port, RequestHandler, forward_to, status_code, nil, timeout)
       logger.info { "listening on #{host}:#{port}" }
     end
   end
 
   def self.run_with_state(config)
-    host = config[:listen_host] || 'localhost'
-    port = config[:listen_port] || 8080
+    host        = config[:listen_host] || 'localhost'
+    port        = config[:listen_port] || 8080
     status_code = config[:status_code] || 200
     forward_to  = config[:forward_to]
-    dbpath = config[:persistent]
+    dbpath      = config[:persistent]
+    timeout     = config[:timeout]
     feedback_channel = File.join(Dir.tmpdir, "yupd-#{$$}-feedback")
     state            = Yup::State.new(dbpath, forward_to, feedback_channel)
 
     pid = Process.fork do
-      State::RequestForwarder.new(state, forward_to).run_loop
+      State::RequestForwarder.new(state, forward_to, timeout).run_loop
     end
 
     if pid

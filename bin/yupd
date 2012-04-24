@@ -19,6 +19,7 @@ Options:
   --loglevel <level>         Logging severity (default fatal).
                              Available log levels: fatal, error, warn, info, debug.
   --persistent <path>        Use persistent queue.
+  --timeout <seconds>        Timeout for answer from FORWARD_TO_HOST
 
 Examples:
   yupd --listen 0.0.0.0:8081 --status-code 201 errbit.host.somewhere
@@ -41,6 +42,7 @@ opts = GetoptLong.new(*[['--help',         '-h', GetoptLong::NO_ARGUMENT],
                         ['--watermark',          GetoptLong::REQUIRED_ARGUMENT],
                         ['--loglevel',           GetoptLong::REQUIRED_ARGUMENT],
                         ['--persistent',         GetoptLong::REQUIRED_ARGUMENT],
+                        ['--timeout',            GetoptLong::REQUIRED_ARGUMENT],
                         ])
 config = {:loglevel => LEVELS["fatal"]}
 
@@ -67,6 +69,8 @@ opts.each do |opt, arg|
     end
   when '--persistent'
     config[:persistent] = arg || "/tmp/queue"
+  when '--timeout'
+    config[:timeout] = arg.to_i
   end
 end
 
