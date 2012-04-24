@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/neglectedvalue/yup"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.15"
+  s.rubygems_version = "1.8.10"
   s.summary = "Asynchronous HTTP delegate"
   s.test_files = [
     "test/helper.rb",
