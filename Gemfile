@@ -5,10 +5,10 @@ gem "em-http-request"
 gem "http_request.rb"
 gem "http_parser.rb"
 gem "tuple"
-gem "bdb"
 gem "yajl-ruby"
 
 group :development do
+  gem "bdb"
   gem "yard", "~> 0.6.0"
   gem "minitest", ">= 0"
   gem "bundler", "~> 1.0.0"

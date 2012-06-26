@@ -6,7 +6,6 @@ require 'tmpdir'
 
 require 'yup/request_forwarder'
 require 'yup/request_handler'
-require 'yup/state'
 
 module Yup
   @@resend_delay = 5.0
@@ -35,6 +34,8 @@ module Yup
   end
 
   def self.run_with_state(config)
+    require 'yup/state'
+
     host        = config[:listen_host] || 'localhost'
     port        = config[:listen_port] || 8080
     status_code = config[:status_code] || 200
@@ -60,7 +61,7 @@ module Yup
     end
 
     EventMachine.run do
-      EventMachine.start_server(host, port, RequestHandler, forward_to, status_code, state)
+      EventMachine.start_server(host, port, RequestHandler, forward_to, status_code, state, timeout)
       logger.info { "Listening on #{host}:#{port}" }
 
       EventMachine.start_unix_domain_server(feedback_channel, State::FeedbackHandler, state)

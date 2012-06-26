@@ -1,5 +1,9 @@
-require 'bdb'
-require 'bdb/database'
+begin
+  require 'bdb'
+  require 'bdb/database'
+rescue LoadError
+  puts "Install bdb gem to use a persistent queue."
+end
 
 module Yup
   class State
