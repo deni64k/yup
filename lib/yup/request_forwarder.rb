@@ -20,7 +20,7 @@ module Yup
       http = EventMachine::HttpRequest.
         new(http_url).
         send(http_method,
-             :inactivity_timeout => @timeout,
+             :timeout => @timeout,
              :head => @headers.merge('Host' => @forward_to),
              :body => @body)
 
@@ -83,7 +83,7 @@ module Yup
                  :url => http_url,
                  :headers => headers.merge('Host' => @forward_to),
                  :parameters => body,
-                 :inactivity_timeout => timeout)
+                 :timeout => timeout)
 
           if http.code_2xx?
             @logger.info '--- SUCCESS'
