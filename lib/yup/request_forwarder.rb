@@ -10,41 +10,53 @@ module Yup
       @body        = body
       @forward_to  = forward_to
       @timeout     = timeout
-
-      @logger = Yup.logger
+      @logger      = Yup.logger.clone
     end
 
-    def run
+    def perform
       http_method = @http_method.to_sym
       http_url    = "http://#{@forward_to}#{@request_url}"
       http = EventMachine::HttpRequest.
-        new(http_url).
+        new(http_url,
+            :inactivity_timeout => @timeout).
         send(http_method,
-             :timeout => @timeout,
              :head => @headers.merge('Host' => @forward_to),
              :body => @body)
+
+      @logger.progname = "Yup::RequestForwarder (##{http.__id__.to_s(36)} received at #{Time.now.to_s})"
 
       http.callback do
         Yup.watermark += 1
 
         if http.response_header.status / 100 == 2
-          @logger.info '--- SUCCESS'
+          log_response(http)
+          @logger.info "Success"
         else
-          @logger.info '--- FAIL'
-          @logger.debug { http.inspect }
-          @logger.debug { http.response_header.inspect }
-          @logger.debug { http.response.inspect }
+          log_response(http)
+          @logger.info "Fail; will not retry"
         end
       end
 
       http.errback do
-        @logger.info '--- ERROR'
-        @logger.debug { http.inspect }
-        @logger.debug { http.response_header.inspect }
-        @logger.debug { http.response.inspect }
+        log_response(http)
+        @logger.info "Error: #{http.error}; will retry after #{Yup.resend_delay} seconds"
 
-        EventMachine.add_timer(Yup.resend_delay) { self.run }
+        EventMachine.add_timer(Yup.resend_delay, &self.method(:retry))
       end
+    end
+
+    def retry
+      self.perform
+    end
+
+    def log_response(http)
+      @logger.info { "HTTP request: #{@http_method.upcase} #{@request_url} HTTP/1.1" }
+      if http.response_header.http_status
+        @logger.info { "HTTP response: HTTP/#{http.response_header.http_version} #{http.response_header.http_status} #{http.response_header.http_reason}" }
+        @logger.debug { "HTTP response headers" + (http.response_header.empty? ? " is empty" : "\n" + http.response_header.inspect) }
+        @logger.debug { "HTTP response body"    + (http.response.empty? ? " is empty" : "\n" + http.response.inspect) }
+      end
+      # @logger.debug { "http.inspect\n" + http.inspect }
     end
   end
 
@@ -53,11 +65,11 @@ module Yup
       def initialize(state, forward_to, timeout)
         @state      = state
         @forward_to = forward_to
-        @timeout = timeout
+        @timeout    = timeout
+        @logger     = Yup.logger.clone
 
-        @logger = Yup.logger
-        @yajl   = Yajl::Parser.new(:symbolize_keys => true)
-        @yajl.on_parse_complete = method(:make_request)
+        @yajl = Yajl::Parser.new(:symbolize_keys => true)
+        @yajl.on_parse_complete = self.method(:make_request)
       end
 
       def run_loop
@@ -83,10 +95,10 @@ module Yup
                  :url => http_url,
                  :headers => headers.merge('Host' => @forward_to),
                  :parameters => body,
-                 :timeout => timeout)
+                 :inactivity_timeout => @timeout)
 
           if http.code_2xx?
-            @logger.info '--- SUCCESS'
+            @logger.info "SUCCESS"
           else
             @logger.info '--- FAIL'
             @logger.debug { http.inspect }

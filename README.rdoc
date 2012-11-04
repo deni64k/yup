@@ -1,18 +1,18 @@
 = yup daemon
 
-This is the small daemon for transparent asynchronous delegating HTTP requests when response is known or unimportant.
+This is the small daemon to forward HTTP requests when response is known or unimportant.
 
-When a http request is arrived the yup daemon (yupd) answers to the client configured answer (by default 200 OK). Then the yupd forwards the http request to the specified host and retries if a timeout error was happend.
+When a http request is arrived the yup daemon (yupd), it answers 200 OK (customizable). Then the yupd forwards the http request to the specified host and retries if a timeout error was happend.
 
 == Non-persistent queue
-By default, nonpersistent queue is used. A limit (the option --watermark) at which new requests will be dropped.
+By default, nonpersistent queue is used. A limit (the option --watermark) at which new concurrent requests will be dropped.
 
 == Persistent queue
 If you want use persistent queue you need to specify the option --persistent with a path to a database.
 
 == One of use cases
 
-For example we can have a rails app which send exceptions to an errbit by the gem hoptoad_notifier. We know the errbit can be not available by network issues or some else reasons, but we do not want lose exceptions. To resolve this problem we can start yupd on the same host with the rails app:
+For example we can have a rails app which send exceptions to an Errbit by the gem airbrake. We know the errbit can be not available by network issues or some else reasons, but we do not want to lose exceptions. To resolve this problem we can start yupd on the same host with the rails app:
     yupd --listen localhost:8081 --status-code 201 --persistent /var/db/yupd-errbit errbit.host.somewhere
 
 Reconfiguration of hoptoad_notifier is very ease:
@@ -22,7 +22,7 @@ Reconfiguration of hoptoad_notifier is very ease:
       config.api_key = "api_key_for_your_app"
     end
 
-Now problem of availability of errbit is assigned to the yupd.
+Now problem of availability errbit is assigned to the yupd.
 
 == Roadmap to 0.1
 
@@ -30,17 +30,10 @@ Now problem of availability of errbit is assigned to the yupd.
 * Daemonize
 * Preforking
 * A configurable map of different delegating rules
-* Tests...
 
 == Contributing to yup
 
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
-* Fork the project
-* Start a feature/bugfix branch
-* Commit and push until you are happy with your contribution
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+Feel free to contribute.
 
 == Copyright
 

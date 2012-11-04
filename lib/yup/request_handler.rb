@@ -11,8 +11,10 @@ module Yup
       @state       = state
       @timeout     = timeout
 
-      @logger = Yup.logger
       @chunks = []
+
+      @logger = Yup.logger.clone
+      @logger.progname = "Yup::RequestHandler"
     end
 
     def post_init
@@ -32,12 +34,15 @@ module Yup
     end
 
     def on_message_complete
-      @logger.info  "-- got request"
-      @logger.info  { "HTTP version     : " + @parser.http_version.join('.') }
-      @logger.info  { "HTTP method      : " + @parser.http_method }
-      @logger.info  { "HTTP request_url : " + @parser.request_url }
-      @logger.debug { "HTTP headers     : " + @parser.headers.inspect }
-      @logger.debug { "HTTP body        : " + @body }
+      @logger.info  {
+        "Processing a new request: #{@parser.http_method} #{@parser.request_url} HTTP/#{@parser.http_version.join('.')}"
+      }
+      @logger.debug {
+        "HTTP headers" + (@parser.headers.empty? ? " is empty" : "\n" + @parser.headers.inspect)
+      }
+      @logger.debug {
+        "HTTP body"    + (@body.empty? ? " is empty" : "\n" + @body)
+      }
 
       send_answer
       shedule_request
@@ -49,6 +54,11 @@ module Yup
       resp.status = @status_code
       resp['Server'] = 'yupd'
       send_data resp.to_s
+
+      @logger.info {
+        port, ip = Socket.unpack_sockaddr_in(get_peername)
+        "Sent the answer #{@status_code} to a client #{ip}:#{port}"
+      }
     end
 
     def shedule_request
@@ -58,11 +68,11 @@ module Yup
         unless Yup.watermark.zero?
           Yup.watermark -= 1
 
-          EventMachine.next_tick do
-            RequestForwarder.new(@parser.http_method.downcase, @parser.request_url, @parser.headers, @body, @forward_to, @timeout).run
+          EM.next_tick do
+            RequestForwarder.new(@parser.http_method.downcase, @parser.request_url, @parser.headers, @body, @forward_to, @timeout).perform
           end
         else
-          @logger.error "-- watermark is reached, drop"
+          @logger.error "Watermark is reached, drop the request"
         end
       end
     end

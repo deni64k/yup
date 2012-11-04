@@ -4,6 +4,7 @@ require 'logger'
 require 'yajl'
 require 'tmpdir'
 
+require 'yup/version'
 require 'yup/request_forwarder'
 require 'yup/request_handler'
 
@@ -27,8 +28,8 @@ module Yup
     forward_to  = config[:forward_to]
     timeout     = config[:timeout] || 10
 
-    EventMachine.run do
-      EventMachine.start_server(host, port, RequestHandler, forward_to, status_code, nil, timeout)
+    EM.run do
+      EM.start_server(host, port, RequestHandler, forward_to, status_code, nil, timeout)
       logger.info { "listening on #{host}:#{port}" }
     end
   end
@@ -60,11 +61,11 @@ module Yup
       Signal.trap("INT", &db_closer)
     end
 
-    EventMachine.run do
-      EventMachine.start_server(host, port, RequestHandler, forward_to, status_code, state, timeout)
+    EM.run do
+      EM.start_server(host, port, RequestHandler, forward_to, status_code, state, timeout)
       logger.info { "Listening on #{host}:#{port}" }
 
-      EventMachine.start_unix_domain_server(feedback_channel, State::FeedbackHandler, state)
+      EM.start_unix_domain_server(feedback_channel, State::FeedbackHandler, state)
       logger.info { "Feedback through #{feedback_channel}" }
     end
   end
