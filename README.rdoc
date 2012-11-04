@@ -1,4 +1,7 @@
-= yup daemon {<img src="https://secure.travis-ci.org/neglectedvalue/yup.png" alt="Build Status" />}[http://travis-ci.org/neglectedvalue/yup]
+= yup daemon
+
+{<img src="https://secure.travis-ci.org/neglectedvalue/yup.png" alt="Build Status" />}[http://travis-ci.org/neglectedvalue/yup]
+{<img src="https://codeclimate.com/badge.png" />}[https://codeclimate.com/github/neglectedvalue/yup]
 
 This is the small daemon to forward HTTP requests when response is known or unimportant.
 
