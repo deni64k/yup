@@ -1,5 +1,8 @@
 before_install:
   - sudo apt-get install libdb-dev
+  - rvm install ree-1.8.6-20090610
+  - rvm install ruby-1.9.2-p180
+  - rvm install ruby-1.9.3-p125
 language: ruby
 rvm:
   - "ree-1.8.6"
