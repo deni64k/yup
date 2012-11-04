@@ -26,7 +26,6 @@ Now problem of availability errbit is assigned to the yupd.
 
 == Roadmap to 0.1
 
-* More better documentation
 * Daemonize
 * Preforking
 * A configurable map of different delegating rules
