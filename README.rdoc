@@ -1,4 +1,4 @@
-= yup daemon
+= yup daemon {<img src="https://secure.travis-ci.org/neglectedvalue/yup.png" alt="Build Status" />}[http://travis-ci.org/neglectedvalue/yup]
 
 This is the small daemon to forward HTTP requests when response is known or unimportant.
 
