@@ -9,7 +9,7 @@ require 'yup/request_forwarder'
 require 'yup/request_handler'
 
 module Yup
-  @@resend_delay = 5.0
+  @@resend_delay = 60.0
   def self.resend_delay; @@resend_delay end
   def self.resend_delay=(seconds); @@resend_delay = seconds end
 

@@ -16,7 +16,7 @@ Options:
   -h, --help                 Show help
   --listen <host:port>, -l   Listen on an address (default localhost:8080)
   --status-code <code>       Send status code to a client on request (default 200)
-  --resend-delay <seconds>   Resend failed requests in seconds (default 5.0)
+  --resend-delay <seconds>   Resend failed requests in seconds (default 60.0)
   --watermark <number>       Maximum of concurrent requests (default 100)
   --loglevel <level>         Logging severity (default fatal).
                              Available log levels: fatal, error, warn, info, debug.
