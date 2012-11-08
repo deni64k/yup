@@ -75,6 +75,8 @@ class TestPersistenceYup < MiniTest::Unit::TestCase
     state       = Yup::State.new(dbpath, forward_to, feedback_channel)
     timeout     = 1
 
+    Yup.resend_delay = 1
+
     $pid = Process.fork do
       Yup::State::RequestForwarder.new(state, forward_to, timeout).run_loop
     end

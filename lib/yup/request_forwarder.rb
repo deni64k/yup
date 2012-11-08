@@ -117,7 +117,7 @@ module Yup
             @logger.info "Fail; will not retry"
           end
 
-        rescue Timeout::Error => e
+        rescue Exception, Timeout::Error => e
           log_response(raw_response, response_body, http)
           @logger.info "Error: #{e.message}; will retry after #{Yup.resend_delay} seconds"
 

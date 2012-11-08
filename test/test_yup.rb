@@ -64,6 +64,8 @@ class TestYup < MiniTest::Unit::TestCase
     state       = nil
     timeout     = 1
 
+    Yup.resend_delay = 1
+
     EM.run {
       EM.start_server("127.0.0.1", 16785, Service)
       EM.start_server("127.0.0.1", 16784, RequestHandlerMock, forward_to, status_code, state, timeout)
