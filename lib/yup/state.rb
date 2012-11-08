@@ -27,6 +27,7 @@ module Yup
       @logger = Yup.logger.clone
       @logger.progname = "Yup::State"
 
+      FileUtils.mkdir_p(@path)
       @env   = Bdb::Env.new(0)
       @env   = @env.open(@path, Bdb::DB_CREATE | Bdb::DB_INIT_MPOOL | Bdb::DB_INIT_CDB, 0)
       @queue = @env.db

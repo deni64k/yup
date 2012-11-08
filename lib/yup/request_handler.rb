@@ -68,7 +68,6 @@ module Yup
       else
         unless Yup.watermark.zero?
           Yup.watermark -= 1
-
           EM.next_tick do
             RequestForwarder.new(@parser.http_method.downcase, @parser.request_url, @parser.headers, @body, @forward_to, @timeout).perform
           end

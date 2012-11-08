@@ -73,7 +73,7 @@ class TestPersistenceYup < MiniTest::Unit::TestCase
     forward_to  = "127.0.0.1:26785"
     status_code = 200
     state       = Yup::State.new(dbpath, forward_to, feedback_channel)
-    timeout     = 5
+    timeout     = 1
 
     $pid = Process.fork do
       Yup::State::RequestForwarder.new(state, forward_to, timeout).run_loop

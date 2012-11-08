@@ -102,10 +102,8 @@ module Yup
           req << "\r\n"
           raw_response = send_data(req.to_s, @forward_to)
 
-          raise Timeout::Error if raw_response.empty?
-
           response_body = ""
-          http = Http::Parser.new(self)
+          http = Http::Parser.new()
           http.on_body = proc do |chunk|
             response_body << chunk
           end
@@ -132,7 +130,7 @@ module Yup
     private
       def log_response(raw_response, body, http)
         @logger.info { "HTTP request: #{@http_method.upcase} #{@request_url} HTTP/1.1" }
-        if !raw_response.empty?
+        if raw_response && !raw_response.empty?
           @logger.info  { "HTTP response: #{raw_response.lines.first.chomp}" }
           @logger.debug { "HTTP response headers" + (http.headers.empty? ? " is empty" : "\n" + http.headers.inspect) }
           @logger.debug { "HTTP response body"    + (body.empty? ? " is empty" : "\n" + body.inspect) }
@@ -150,12 +148,12 @@ module Yup
         sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_RCVTIMEO, optval)
         sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_SNDTIMEO, optval)
 
-        data = Timeout::timeout(@timeout) do
+        resp = Timeout::timeout(@timeout) do
           sock.connect(Socket.pack_sockaddr_in(port, addr[0][3]))
           sock.write(data)
-          sock.close_write()
           sock.read()
         end
+        return resp
       ensure
         sock.close()
       end

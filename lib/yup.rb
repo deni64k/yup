@@ -26,7 +26,7 @@ module Yup
     port = config[:listen_port] || 8080
     status_code = config[:status_code] || 200
     forward_to  = config[:forward_to]
-    timeout     = config[:timeout] || 10
+    timeout     = config[:timeout] || 60
 
     EM.run do
       EM.start_server(host, port, RequestHandler, forward_to, status_code, nil, timeout)
@@ -42,7 +42,7 @@ module Yup
     status_code = config[:status_code] || 200
     forward_to  = config[:forward_to]
     dbpath      = config[:persistent]
-    timeout     = config[:timeout]
+    timeout     = config[:timeout] || 60
     feedback_channel = File.join(Dir.tmpdir, "yupd-#{$$}-feedback")
     state            = Yup::State.new(dbpath, forward_to, feedback_channel)
 
@@ -62,11 +62,11 @@ module Yup
     end
 
     EM.run do
-      EM.start_server(host, port, RequestHandler, forward_to, status_code, state, timeout)
-      logger.info { "Listening on #{host}:#{port}" }
-
       EM.start_unix_domain_server(feedback_channel, State::FeedbackHandler, state)
       logger.info { "Feedback through #{feedback_channel}" }
+
+      EM.start_server(host, port, RequestHandler, forward_to, status_code, state, timeout)
+      logger.info { "Listening on #{host}:#{port}" }
     end
   end
 end

@@ -21,7 +21,7 @@ Options:
   --loglevel <level>         Logging severity (default fatal).
                              Available log levels: fatal, error, warn, info, debug.
   --persistent <path>        Use persistent queue.
-  --timeout <seconds>        Timeout for answer from FORWARD_TO_HOST
+  --timeout <seconds>        Timeout for answer from FORWARD_TO_HOST (default 60.0)
 
 Examples:
   yupd --listen 0.0.0.0:8081 --status-code 201 errbit.host.somewhere
@@ -72,7 +72,7 @@ opts.each do |opt, arg|
   when '--persistent'
     config[:persistent] = arg || "/tmp/queue"
   when '--timeout'
-    config[:timeout] = arg.to_i
+    config[:timeout] = arg.to_f
   end
 end
 
@@ -89,7 +89,6 @@ Yup.watermark    = config[:watermark] if config.has_key?(:watermark)
 Yup.resend_delay = config[:resend_delay] if config.has_key?(:resend_delay)
 
 if config.has_key?(:persistent)
-  # Yup::State.repair_if_need(config[:persistent])
   Yup.run_with_state(config)
 else
   Yup.run(config)
