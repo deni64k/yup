@@ -59,11 +59,12 @@ class TestYup < MiniTest::Unit::TestCase
   end
 
   def test_request_handler
+    forward_to  = "127.0.0.1:16785"
+    status_code = 200
+    state       = nil
+    timeout     = 1
+
     EM.run {
-      forward_to  = "127.0.0.1:16785"
-      status_code = 200
-      state       = nil
-      timeout     = 1
       EM.start_server("127.0.0.1", 16785, Service)
       EM.start_server("127.0.0.1", 16784, RequestHandlerMock, forward_to, status_code, state, timeout)
       EM.connect("127.0.0.1", 16784, Client)
@@ -75,8 +76,4 @@ class TestYup < MiniTest::Unit::TestCase
     assert       $service_parser
     assert_equal "/foo", $service_parser.request_url
   end
-
-  # def test_request_forwarder
-  #   flunk
-  # end
 end

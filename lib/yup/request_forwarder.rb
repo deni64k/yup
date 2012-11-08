@@ -1,5 +1,4 @@
 require 'em-http-request'
-require 'http_request'
 
 module Yup
   class RequestForwarder
@@ -11,6 +10,10 @@ module Yup
       @forward_to  = forward_to
       @timeout     = timeout
       @logger      = Yup.logger.clone
+
+      @headers.merge!(
+        'Host'       => @forward_to,
+        'Connection' => 'Close')
     end
 
     def perform
@@ -20,7 +23,7 @@ module Yup
         new(http_url,
             :inactivity_timeout => @timeout).
         send(http_method,
-             :head => @headers.merge('Host' => @forward_to),
+             :head => @headers,
              :body => @body)
 
       @logger.progname = "Yup::RequestForwarder (##{http.__id__.to_s(36)} received at #{Time.now.to_s})"
@@ -49,14 +52,14 @@ module Yup
       self.perform
     end
 
+  private
     def log_response(http)
       @logger.info { "HTTP request: #{@http_method.upcase} #{@request_url} HTTP/1.1" }
       if http.response_header.http_status
-        @logger.info { "HTTP response: HTTP/#{http.response_header.http_version} #{http.response_header.http_status} #{http.response_header.http_reason}" }
+        @logger.info  { "HTTP response: HTTP/#{http.response_header.http_version} #{http.response_header.http_status} #{http.response_header.http_reason}" }
         @logger.debug { "HTTP response headers" + (http.response_header.empty? ? " is empty" : "\n" + http.response_header.inspect) }
         @logger.debug { "HTTP response body"    + (http.response.empty? ? " is empty" : "\n" + http.response.inspect) }
       end
-      # @logger.debug { "http.inspect\n" + http.inspect }
     end
   end
 
@@ -67,6 +70,7 @@ module Yup
         @forward_to = forward_to
         @timeout    = timeout
         @logger     = Yup.logger.clone
+        @logger.progname = "Yup::State::RequestForwarder"
 
         @yajl = Yajl::Parser.new(:symbolize_keys => true)
         @yajl.on_parse_complete = self.method(:make_request)
@@ -85,34 +89,75 @@ module Yup
 
       def make_request(req)
         begin
-          http_method, request_url, headers, body = req
+          @http_method, @request_url, headers, body = req
           headers = Hash[headers.to_a.flatten.map(&:to_s)]
+          headers["Host"]       = @forward_to
+          headers["Connection"] = "Close"
 
-          http_method = http_method.to_sym
-          http_url    = "http://#{@forward_to}#{request_url}"
-          http = HttpRequest.
-            send(http_method,
-                 :url => http_url,
-                 :headers => headers.merge('Host' => @forward_to),
-                 :parameters => body,
-                 :inactivity_timeout => @timeout)
-
-          if http.code_2xx?
-            @logger.info "SUCCESS"
-          else
-            @logger.info '--- FAIL'
-            @logger.debug { http.inspect }
-            @logger.debug { http.response_header.inspect }
-            @logger.debug { http.response.inspect }
+          req = "#{@http_method.upcase} #{@request_url} HTTP/1.1\r\n"
+          headers.each do |k, v|
+            req << "#{k}: #{v}\r\n"
           end
-        rescue Exception => e
-          @logger.info '--- ERROR'
-          @logger.debug { e }
+          req << body if !body.empty?
+          req << "\r\n"
+          raw_response = send_data(req.to_s, @forward_to)
 
-          @state.to_feedback(Yajl::Encoder.encode([http_method.downcase, request_url, headers, body]))
+          raise Timeout::Error if raw_response.empty?
+
+          response_body = ""
+          http = Http::Parser.new(self)
+          http.on_body = proc do |chunk|
+            response_body << chunk
+          end
+          http << raw_response
+
+          if http.status_code / 100 == 2
+            log_response(raw_response, response_body, http)
+            @logger.info "Success"
+          else
+            log_response(raw_response, response_body, http)
+            @logger.info "Fail; will not retry"
+          end
+
+        rescue Timeout::Error => e
+          log_response(raw_response, response_body, http)
+          @logger.info "Error: #{e.message}; will retry after #{Yup.resend_delay} seconds"
+
+          @state.to_feedback(Yajl::Encoder.encode([@http_method.downcase, @request_url, headers, body]))
 
           sleep Yup.resend_delay
         end
+      end
+
+    private
+      def log_response(raw_response, body, http)
+        @logger.info { "HTTP request: #{@http_method.upcase} #{@request_url} HTTP/1.1" }
+        if !raw_response.empty?
+          @logger.info  { "HTTP response: #{raw_response.lines.first.chomp}" }
+          @logger.debug { "HTTP response headers" + (http.headers.empty? ? " is empty" : "\n" + http.headers.inspect) }
+          @logger.debug { "HTTP response body"    + (body.empty? ? " is empty" : "\n" + body.inspect) }
+        end
+      end
+
+      def send_data(data, host)
+        host, port = host.split(":")
+        addr = Socket.getaddrinfo(host, nil)
+        sock = Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
+
+        secs   = Integer(@timeout)
+        usecs  = Integer((@timeout - secs) * 1_000_000)
+        optval = [secs, usecs].pack("l_2")
+        sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_RCVTIMEO, optval)
+        sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_SNDTIMEO, optval)
+
+        data = Timeout::timeout(@timeout) do
+          sock.connect(Socket.pack_sockaddr_in(port, addr[0][3]))
+          sock.write(data)
+          sock.close_write()
+          sock.read()
+        end
+      ensure
+        sock.close()
       end
     end
 
@@ -120,9 +165,11 @@ module Yup
       def initialize(state)
         @state      = state
 
-        @logger = Yup.logger
         @yajl   = Yajl::Parser.new(:symbolize_keys => true)
         @yajl.on_parse_complete = method(:on_message)
+
+        @logger = Yup.logger.clone
+        @logger.progname = "Yup::State::FeedbackHandler"
       end
 
       def receive_data(data)

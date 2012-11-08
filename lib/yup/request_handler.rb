@@ -54,6 +54,7 @@ module Yup
       resp.status = @status_code
       resp['Server'] = 'yupd'
       send_data resp.to_s
+      close_connection_after_writing
 
       @logger.info {
         port, ip = Socket.unpack_sockaddr_in(get_peername)

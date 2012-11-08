@@ -2,7 +2,6 @@ source "http://rubygems.org"
 
 gem "eventmachine"
 gem "em-http-request"
-gem "http_request.rb"
 gem "http_parser.rb"
 gem "tuple"
 gem "yajl-ruby"
