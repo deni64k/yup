@@ -27,12 +27,6 @@ Reconfiguration of hoptoad_notifier is very ease:
 
 Now problem of availability errbit is assigned to the yupd.
 
-== Roadmap to 0.1
-
-* Daemonize
-* Preforking
-* A configurable map of different delegating rules
-
 == Contributing to yup
 
 Feel free to contribute.
