@@ -1,7 +1,5 @@
 require 'helper'
 
-$attempts = 0
-
 class Yup::RequestForwarder
   alias :retry_original :retry
   def retry()
@@ -59,6 +57,8 @@ class TestYup < MiniTest::Unit::TestCase
   end
 
   def test_request_handler
+    $attempts = 0
+
     forward_to  = "127.0.0.1:16785"
     status_code = 200
     state       = nil

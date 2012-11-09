@@ -4,8 +4,6 @@ require 'tmpdir'
 require 'fileutils'
 require 'yup/state'
 
-$attempts = 0
-
 class Yup::State::FeedbackHandler
   alias :on_message_original :on_message
   def on_message(req)
@@ -67,6 +65,8 @@ class TestPersistenceYup < MiniTest::Unit::TestCase
   end
 
   def test_request_handler
+    $attempts = 0
+
     dbpath           = Dir.mktmpdir("yupd-db")
     feedback_channel = File.join(Dir.tmpdir, "yupd-#{$$}-feedback")
 
