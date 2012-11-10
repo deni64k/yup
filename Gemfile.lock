@@ -38,14 +38,14 @@ GEM
       hashr (>= 0.0.19)
     tuple (0.1.2)
     yajl-ruby (1.1.0)
-    yard (0.6.8)
+    yard (0.8.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   bdb
-  bundler (~> 1.0)
+  bundler (~> 1.2)
   em-http-request
   eventmachine
   http_parser.rb
@@ -56,4 +56,4 @@ DEPENDENCIES
   travis-lint
   tuple
   yajl-ruby
-  yard (~> 0.6.0)
+  yard (~> 0.8.0)

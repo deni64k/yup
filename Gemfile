@@ -8,11 +8,11 @@ gem "yajl-ruby"
 
 group :development do
   gem "bdb"
-  gem "yard",      "~> 0.6.0"
-  gem "minitest",  ">= 0"
-  gem "bundler",   "~> 1.0"
+  gem "yard",      "~> 0.8.0"
+  gem "minitest"
+  gem "bundler",   "~> 1.2"
   gem "jeweler",   "~> 1.8.4"
-  gem "simplecov", ">= 0"
-  gem "simplecov-rcov", ">= 0"
+  gem "simplecov"
+  gem "simplecov-rcov"
   gem "travis-lint"
 end
