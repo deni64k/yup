@@ -27,12 +27,15 @@ class TestYup < MiniTest::Unit::TestCase
       case $attempts
       when 0
       when 1
+        send_data "HTTP/1.1 400 OK\r\nServer: test\r\n\r\n"
+      when 2
         send_data "HTTP/1.1 200 OK\r\nServer: test\r\n\r\n"
+        close_connection_after_writing
       end
     end
 
     def unbind
-      if $attempts > 0
+      if $attempts >= 2
         EM.next_tick { EM.stop_event_loop }
       end
     end
@@ -64,7 +67,8 @@ class TestYup < MiniTest::Unit::TestCase
     state       = nil
     timeout     = 1
 
-    Yup.resend_delay = 1
+    Yup.resend_delay     = 1
+    Yup.retry_unless_2xx = true
 
     EM.run {
       EM.start_server("127.0.0.1", 16785, Service)

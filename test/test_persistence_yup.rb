@@ -31,13 +31,16 @@ class TestPersistenceYup < MiniTest::Unit::TestCase
       case $attempts
       when 0
       when 1
+        send_data "HTTP/1.1 400 OK\r\nServer: test\r\n\r\n"
+        close_connection_after_writing
+      when 2
         send_data "HTTP/1.1 200 OK\r\nServer: test\r\n\r\n"
         close_connection_after_writing
       end
     end
 
     def unbind
-      if $attempts > 0
+      if $attempts >= 2
         EM.add_timer(1) do
           Process.kill("KILL", $pid)
           EM.stop_event_loop()
@@ -75,7 +78,8 @@ class TestPersistenceYup < MiniTest::Unit::TestCase
     state       = Yup::State.new(dbpath, forward_to, feedback_channel)
     timeout     = 1
 
-    Yup.resend_delay = 1
+    Yup.resend_delay     = 1
+    Yup.retry_unless_2xx = true
 
     $pid = Process.fork do
       Yup::State::RequestForwarder.new(state, forward_to, timeout).run_loop
@@ -89,7 +93,7 @@ class TestPersistenceYup < MiniTest::Unit::TestCase
     }
 
     assert       $client_parser
-    assert_equal 200,   $client_parser.status_code
+    assert_equal 200,    $client_parser.status_code
     assert_equal "yupd", $client_parser.headers["Server"]
     assert       $service_parser
     assert_equal "/foo", $service_parser.request_url

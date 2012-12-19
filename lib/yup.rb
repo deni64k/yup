@@ -21,6 +21,10 @@ module Yup
   def self.logger; @@logger end
   def self.logger=(logger); @@logger = logger end
 
+  @@retry_unless_2xx = false
+  def self.retry_unless_2xx; @@retry_unless_2xx end
+  def self.retry_unless_2xx=(bool); @@retry_unless_2xx = bool end
+
   def self.run(config)
     host = config[:listen_host] || 'localhost'
     port = config[:listen_port] || 8080

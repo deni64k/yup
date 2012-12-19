@@ -22,6 +22,7 @@ Options:
                              Available log levels: fatal, error, warn, info, debug.
   --persistent <path>        Use persistent queue.
   --timeout <seconds>        Timeout for answer from FORWARD_TO_HOST (default 60.0)
+  --retry-unless-2xx         Retry even if status code not 2xx.
 
 Examples:
   yupd --listen 0.0.0.0:8081 --status-code 201 errbit.host.somewhere
@@ -45,6 +46,7 @@ opts = GetoptLong.new(*[['--help',         '-h', GetoptLong::NO_ARGUMENT],
                         ['--loglevel',           GetoptLong::REQUIRED_ARGUMENT],
                         ['--persistent',         GetoptLong::REQUIRED_ARGUMENT],
                         ['--timeout',            GetoptLong::REQUIRED_ARGUMENT],
+                        ['--retry-unless-2xx',   GetoptLong::NO_ARGUMENT],
                         ])
 config = {:loglevel => LEVELS["fatal"]}
 
@@ -73,6 +75,8 @@ opts.each do |opt, arg|
     config[:persistent] = arg || "/tmp/queue"
   when '--timeout'
     config[:timeout] = arg.to_f
+  when '--retry-unless-2xx'
+    config[:retry_unless_2xx] = true
   end
 end
 
@@ -87,6 +91,7 @@ config[:forward_to] = ARGV.shift
 Yup.logger.level = config[:loglevel]
 Yup.watermark    = config[:watermark] if config.has_key?(:watermark)
 Yup.resend_delay = config[:resend_delay] if config.has_key?(:resend_delay)
+Yup.retry_unless_2xx = config[:retry_unless_2xx] if config.has_key?(:retry_unless_2xx)
 
 if config.has_key?(:persistent)
   Yup.run_with_state(config)

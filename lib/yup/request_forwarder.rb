@@ -26,7 +26,7 @@ module Yup
              :head => @headers,
              :body => @body)
 
-      @logger.progname = "Yup::RequestForwarder (##{http.__id__.to_s(36)} received at #{Time.now.to_s})"
+      @logger.progname = "Yup::RequestForwarder (##{self.__id__.to_s(36)} received at #{Time.now.to_s})"
 
       http.callback do
         Yup.watermark += 1
@@ -36,7 +36,12 @@ module Yup
           @logger.info "Success"
         else
           log_response(http)
-          @logger.info "Fail; will not retry"
+          if Yup.retry_unless_2xx
+            @logger.info "Fail: got status code #{http.response_header.status}; will retry after #{Yup.resend_delay} seconds"
+            EventMachine.add_timer(Yup.resend_delay, &self.method(:retry))
+          else
+            @logger.info "Fail; will not retry"
+          end
         end
       end
 
@@ -114,7 +119,14 @@ module Yup
             @logger.info "Success"
           else
             log_response(raw_response, response_body, http)
-            @logger.info "Fail; will not retry"
+            if Yup.retry_unless_2xx
+              @logger.info "Fail: got status code #{http.status_code}; will retry after #{Yup.resend_delay} seconds"
+              @state.to_feedback(Yajl::Encoder.encode([@http_method.downcase, @request_url, headers, body]))
+
+              sleep Yup.resend_delay
+            else
+              @logger.info "Fail; will not retry"
+            end
           end
 
         rescue Exception, Timeout::Error => e
