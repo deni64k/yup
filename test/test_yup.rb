@@ -27,7 +27,8 @@ class TestYup < MiniTest::Unit::TestCase
       case $attempts
       when 0
       when 1
-        send_data "HTTP/1.1 400 OK\r\nServer: test\r\n\r\n"
+        send_data "HTTP/1.1 400 Bad Request\r\nServer: test\r\n\r\n"
+        close_connection_after_writing
       when 2
         send_data "HTTP/1.1 200 OK\r\nServer: test\r\n\r\n"
         close_connection_after_writing

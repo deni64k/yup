@@ -31,7 +31,7 @@ module Yup
       http.callback do
         Yup.watermark += 1
 
-        if http.response_header.status / 100 == 2
+        if http.response_header && http.response_header.status && http.response_header.status / 100 == 2
           log_response(http)
           @logger.info "Success"
         else
@@ -47,7 +47,7 @@ module Yup
 
       http.errback do
         log_response(http)
-        @logger.info "Error: #{http.error}; will retry after #{Yup.resend_delay} seconds"
+        @logger.info "Error: #{http.inspect}: #{http.error}; will retry after #{Yup.resend_delay} seconds"
 
         EventMachine.add_timer(Yup.resend_delay, &self.method(:retry))
       end
@@ -95,7 +95,7 @@ module Yup
       def make_request(req)
         begin
           @http_method, @request_url, headers, body = req
-          headers = Hash[headers.to_a.flatten.map(&:to_s)]
+          headers = Hash[*headers.to_a.flatten.map(&:to_s)]
           headers["Host"]       = @forward_to
           headers["Connection"] = "Close"
 
@@ -103,8 +103,8 @@ module Yup
           headers.each do |k, v|
             req << "#{k}: #{v}\r\n"
           end
-          req << body if !body.empty?
           req << "\r\n"
+          req << body if !body.empty?
           raw_response = send_data(req.to_s, @forward_to)
 
           response_body = ""
@@ -114,7 +114,7 @@ module Yup
           end
           http << raw_response
 
-          if http.status_code / 100 == 2
+          if http.status_code && http.status_code / 100 == 2
             log_response(raw_response, response_body, http)
             @logger.info "Success"
           else
@@ -131,7 +131,7 @@ module Yup
 
         rescue Exception, Timeout::Error => e
           log_response(raw_response, response_body, http)
-          @logger.info "Error: #{e.message}; will retry after #{Yup.resend_delay} seconds"
+          @logger.info "Error: #{e.class}: #{e.message}; will retry after #{Yup.resend_delay} seconds"
 
           @state.to_feedback(Yajl::Encoder.encode([@http_method.downcase, @request_url, headers, body]))
 
