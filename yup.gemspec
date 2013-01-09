@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "yup"
-  s.version = "0.1.2"
+  s.version = "0.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Denis Sukhonin"]
-  s.date = "2012-12-19"
+  s.date = "2013-01-09"
   s.description = "Just answers 200 (or specified) to a client and asynchronously forwards HTTP request to a configured host"
   s.email = "d.sukhonin@gmail.com"
   s.executables = ["yupd"]
