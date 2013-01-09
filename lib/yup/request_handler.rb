@@ -50,16 +50,21 @@ module Yup
 
     private
     def send_answer
+      @logger.info {
+        peername = get_peername
+        port, ip = if peername
+          Socket.unpack_sockaddr_in(peername)
+        else
+          ["unknown", "unknown"]
+        end
+        "Sending the answer #{@status_code} to a client #{ip}:#{port}"
+      }
+
       resp = WEBrick::HTTPResponse.new(:HTTPVersion => '1.1')
       resp.status = @status_code
       resp['Server'] = 'yupd'
       send_data resp.to_s
       close_connection_after_writing
-
-      @logger.info {
-        port, ip = Socket.unpack_sockaddr_in(get_peername)
-        "Sent the answer #{@status_code} to a client #{ip}:#{port}"
-      }
     end
 
     def shedule_request
