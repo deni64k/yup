@@ -1,3 +1,4 @@
+require 'uri'
 require 'rubygems'
 require 'eventmachine'
 require 'logger'
@@ -7,6 +8,7 @@ require 'tmpdir'
 require 'yup/version'
 require 'yup/request_forwarder'
 require 'yup/request_handler'
+require 'yup/state'
 
 module Yup
   @@resend_delay = 60.0
@@ -26,8 +28,8 @@ module Yup
   def self.retry_unless_2xx=(bool); @@retry_unless_2xx = bool end
 
   def self.run(config)
-    host = config[:listen_host] || 'localhost'
-    port = config[:listen_port] || 8080
+    host        = config[:listen_host] || 'localhost'
+    port        = config[:listen_port] || 8080
     status_code = config[:status_code] || 200
     forward_to  = config[:forward_to]
     timeout     = config[:timeout] || 60
@@ -39,7 +41,18 @@ module Yup
   end
 
   def self.run_with_state(config)
-    require 'yup/state'
+    case State.state_type(config[:persistent])
+    when :bdb
+      self.run_with_bdb(config)
+    when :redis
+      self.run_with_redis(config)
+    else
+      abort "Unknown scheme of persistent queue."
+    end
+  end
+
+  def self.run_with_bdb(config)
+    require 'yup/state/bdb'
 
     host        = config[:listen_host] || 'localhost'
     port        = config[:listen_port] || 8080
@@ -48,17 +61,17 @@ module Yup
     dbpath      = config[:persistent]
     timeout     = config[:timeout] || 60
     feedback_channel = File.join(Dir.tmpdir, "yupd-#{$$}-feedback")
-    state            = Yup::State.new(dbpath, forward_to, feedback_channel)
+    state            = State::BDB.new(dbpath, forward_to, feedback_channel)
 
     pid = Process.fork do
-      State::RequestForwarder.new(state, forward_to, timeout).run_loop
+      State::BDB::RequestForwarder.new(state, forward_to, timeout).run_loop
     end
 
     if pid
       db_closer = proc do
         Yup.logger.info { "Terminating consumer #{$$}" }
         Process.kill("KILL", pid)
-        state.close
+        state.dispose()
         exit 0
       end
       Signal.trap("TERM", &db_closer)
@@ -66,9 +79,41 @@ module Yup
     end
 
     EM.run do
-      EM.start_unix_domain_server(feedback_channel, State::FeedbackHandler, state)
+      EM.start_unix_domain_server(feedback_channel, State::BDB::FeedbackHandler, state)
       logger.info { "Feedback through #{feedback_channel}" }
 
+      EM.start_server(host, port, RequestHandler, forward_to, status_code, state, timeout)
+      logger.info { "Listening on #{host}:#{port}" }
+    end
+  end
+
+  def self.run_with_redis(config)
+    require 'yup/state/redis'
+
+    host        = config[:listen_host] || 'localhost'
+    port        = config[:listen_port] || 8080
+    status_code = config[:status_code] || 200
+    forward_to  = config[:forward_to]
+    dbpath      = config[:persistent]
+    timeout     = config[:timeout] || 60
+    state       = State::Redis.new(dbpath, forward_to)
+
+    pid = Process.fork do
+      State::Redis::RequestForwarder.new(state, forward_to, timeout).run_loop
+    end
+
+    if pid
+      db_closer = proc do
+        Yup.logger.info { "Terminating consumer #{$$}" }
+        Process.kill("KILL", pid)
+        state.dispose()
+        exit 0
+      end
+      Signal.trap("TERM", &db_closer)
+      Signal.trap("INT", &db_closer)
+    end
+
+    EM.run do
       EM.start_server(host, port, RequestHandler, forward_to, status_code, state, timeout)
       logger.info { "Listening on #{host}:#{port}" }
     end
