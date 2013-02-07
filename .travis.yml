@@ -1,5 +1,7 @@
 before_install:
   - sudo apt-get install libdb-dev
+services:
+  - redis-server
 language: ruby
 rvm:
   - ree-1.8.7
