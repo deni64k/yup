@@ -9,18 +9,21 @@ This is the small daemon to forward HTTP requests when response is known or unim
 When a http request is arrived the yup daemon (yupd), it answers 200 OK (customizable). Then the yupd forwards the http request to the specified host and retries if a timeout error was happend.
 
 == Non-persistent queue
-By default, nonpersistent queue is used. A limit (the option --watermark) at which new concurrent requests will be dropped.
+By default, no persistence is used and forwarded requests is not serialized. A limit (the option --watermark) at which new concurrent requests will be dropped.
 
 == Persistent queue
-If you want use persistent queue you need to specify the option --persistent with a path to a database.
+If you want use persistent queue you need to specify the option --persistent with uri.
 
 == One of use cases
 
 For example we can have a rails app which send exceptions to an Errbit by the gem airbrake. We know the errbit can be not available by network issues or some else reasons, but we do not want to lose exceptions. To resolve this problem we can start yupd on the same host with the rails app:
-    yupd --listen localhost:8081 --status-code 201 --persistent /var/db/yupd-errbit errbit.host.somewhere
+    yupd --listen localhost:8081 --status-code 201 --persistent bdb:///var/db/yupd-errbit errbit.host.somewhere
 
-Reconfiguration of hoptoad_notifier is very ease:
-    HoptoadNotifier.configure do |config|
+Or if you have Redis:
+    yupd --listen localhost:8081 --status-code 201 --persistent redis://localhost/yupd-errbit errbit.host.somewhere
+
+Reconfiguration of airbrake gem is very ease:
+    Airbrake.configure do |config|
       config.host    = "localhost"  # yupd host
       config.port    = 8081         # yupd port
       config.api_key = "api_key_for_your_app"
@@ -32,8 +35,8 @@ Now problem of availability errbit is assigned to the yupd.
 
 Feel free to contribute.
 
-== Copyright
+== Credits
 
-Copyright (c) 2011 Denis Sukhonin. See LICENSE.txt for
-further details.
+Yup is maintained and funded by {Denis Sukhonin}[mailto:d.sukhonin@gmail.com].
 
+Thank you to all {the contributors}[https://github.com/neglectedvalue/yup/contributors]!
