@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "yup"
-  s.version = "0.1.3"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Denis Sukhonin"]
-  s.date = "2013-01-09"
+  s.date = "2013-02-08"
   s.description = "Just answers 200 (or specified) to a client and asynchronously forwards HTTP request to a configured host"
   s.email = "d.sukhonin@gmail.com"
   s.executables = ["yupd"]
@@ -31,9 +31,12 @@ Gem::Specification.new do |s|
     "lib/yup/request_forwarder.rb",
     "lib/yup/request_handler.rb",
     "lib/yup/state.rb",
+    "lib/yup/state/bdb.rb",
+    "lib/yup/state/redis.rb",
     "lib/yup/version.rb",
     "test/helper.rb",
-    "test/test_persistence_yup.rb",
+    "test/test_stateful_yup_with_bdb.rb",
+    "test/test_stateful_yup_with_redis.rb",
     "test/test_yup.rb",
     "yup.gemspec"
   ]
@@ -53,13 +56,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<tuple>, [">= 0"])
       s.add_runtime_dependency(%q<yajl-ruby>, [">= 0"])
       s.add_development_dependency(%q<bdb>, [">= 0"])
+      s.add_development_dependency(%q<redis-namespace>, [">= 0"])
       s.add_development_dependency(%q<yard>, ["~> 0.8.0"])
-      s.add_development_dependency(%q<minitest>, [">= 0"])
+      s.add_development_dependency(%q<minitest>, ["~> 4.5"])
       s.add_development_dependency(%q<bundler>, ["~> 1.2"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.8.4"])
-      s.add_development_dependency(%q<simplecov>, [">= 0"])
-      s.add_development_dependency(%q<simplecov-rcov>, [">= 0"])
-      s.add_development_dependency(%q<travis-lint>, [">= 0"])
+      s.add_development_dependency(%q<simplecov>, ["~> 0.7.1"])
+      s.add_development_dependency(%q<simplecov-rcov>, ["~> 0.2.3"])
+      s.add_development_dependency(%q<travis-lint>, ["~> 1.4"])
     else
       s.add_dependency(%q<eventmachine>, [">= 0"])
       s.add_dependency(%q<em-http-request>, [">= 0"])
@@ -67,13 +71,14 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<tuple>, [">= 0"])
       s.add_dependency(%q<yajl-ruby>, [">= 0"])
       s.add_dependency(%q<bdb>, [">= 0"])
+      s.add_dependency(%q<redis-namespace>, [">= 0"])
       s.add_dependency(%q<yard>, ["~> 0.8.0"])
-      s.add_dependency(%q<minitest>, [">= 0"])
+      s.add_dependency(%q<minitest>, ["~> 4.5"])
       s.add_dependency(%q<bundler>, ["~> 1.2"])
       s.add_dependency(%q<jeweler>, ["~> 1.8.4"])
-      s.add_dependency(%q<simplecov>, [">= 0"])
-      s.add_dependency(%q<simplecov-rcov>, [">= 0"])
-      s.add_dependency(%q<travis-lint>, [">= 0"])
+      s.add_dependency(%q<simplecov>, ["~> 0.7.1"])
+      s.add_dependency(%q<simplecov-rcov>, ["~> 0.2.3"])
+      s.add_dependency(%q<travis-lint>, ["~> 1.4"])
     end
   else
     s.add_dependency(%q<eventmachine>, [">= 0"])
@@ -82,13 +87,14 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<tuple>, [">= 0"])
     s.add_dependency(%q<yajl-ruby>, [">= 0"])
     s.add_dependency(%q<bdb>, [">= 0"])
+    s.add_dependency(%q<redis-namespace>, [">= 0"])
     s.add_dependency(%q<yard>, ["~> 0.8.0"])
-    s.add_dependency(%q<minitest>, [">= 0"])
+    s.add_dependency(%q<minitest>, ["~> 4.5"])
     s.add_dependency(%q<bundler>, ["~> 1.2"])
     s.add_dependency(%q<jeweler>, ["~> 1.8.4"])
-    s.add_dependency(%q<simplecov>, [">= 0"])
-    s.add_dependency(%q<simplecov-rcov>, [">= 0"])
-    s.add_dependency(%q<travis-lint>, [">= 0"])
+    s.add_dependency(%q<simplecov>, ["~> 0.7.1"])
+    s.add_dependency(%q<simplecov-rcov>, ["~> 0.2.3"])
+    s.add_dependency(%q<travis-lint>, ["~> 1.4"])
   end
 end
 
