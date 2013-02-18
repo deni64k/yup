@@ -41,7 +41,7 @@ module Yup
   end
 
   def self.run_with_state(config)
-    case State.state_type(config[:persistent])
+    case State.queue_type(config[:persistent])
     when :bdb
       self.run_with_bdb(config)
     when :redis
