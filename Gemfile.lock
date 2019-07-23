@@ -41,7 +41,7 @@ GEM
       hashr (~> 0.0.22)
     tuple (0.1.2)
     yajl-ruby (1.1.0)
-    yard (0.8.4.1)
+    yard (0.9.20)
 
 PLATFORMS
   ruby
@@ -60,4 +60,4 @@ DEPENDENCIES
   travis-lint (~> 1.4)
   tuple
   yajl-ruby
-  yard (~> 0.8.0)
+  yard (~> 0.9.20)

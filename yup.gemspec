@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "yup"
-  s.version = "0.2.1"
+  s.version = "0.2.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Denis Sukhonin"]
@@ -57,7 +57,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<yajl-ruby>, [">= 0"])
       s.add_development_dependency(%q<bdb>, [">= 0"])
       s.add_development_dependency(%q<redis-namespace>, [">= 0"])
-      s.add_development_dependency(%q<yard>, ["~> 0.8.0"])
+      s.add_development_dependency(%q<yard>, ["~> 0.9.20"])
       s.add_development_dependency(%q<minitest>, ["~> 4.5"])
       s.add_development_dependency(%q<bundler>, ["~> 1.2"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.8.4"])
@@ -72,7 +72,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<yajl-ruby>, [">= 0"])
       s.add_dependency(%q<bdb>, [">= 0"])
       s.add_dependency(%q<redis-namespace>, [">= 0"])
-      s.add_dependency(%q<yard>, ["~> 0.8.0"])
+      s.add_dependency(%q<yard>, ["~> 0.9.20"])
       s.add_dependency(%q<minitest>, ["~> 4.5"])
       s.add_dependency(%q<bundler>, ["~> 1.2"])
       s.add_dependency(%q<jeweler>, ["~> 1.8.4"])
@@ -88,7 +88,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<yajl-ruby>, [">= 0"])
     s.add_dependency(%q<bdb>, [">= 0"])
     s.add_dependency(%q<redis-namespace>, [">= 0"])
-    s.add_dependency(%q<yard>, ["~> 0.8.0"])
+    s.add_dependency(%q<yard>, ["~> 0.9.20"])
     s.add_dependency(%q<minitest>, ["~> 4.5"])
     s.add_dependency(%q<bundler>, ["~> 1.2"])
     s.add_dependency(%q<jeweler>, ["~> 1.8.4"])

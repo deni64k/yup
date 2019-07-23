@@ -9,7 +9,7 @@ gem "yajl-ruby"
 group :development do
   gem "bdb"
   gem "redis-namespace"
-  gem "yard",           "~> 0.8.0"
+  gem "yard",           "~> 0.9.20"
   gem "minitest",       "~> 4.5"
   gem "bundler",        "~> 1.2"
   gem "jeweler",        "~> 1.8.4"
